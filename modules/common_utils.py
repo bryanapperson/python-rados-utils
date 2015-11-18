@@ -93,7 +93,7 @@ class Cluster(object):
         '''
         numprocs = procs
         print ('Beginning copy from pool ' + source + ' to pool ' +
-               target + ' with ' + numprocs + ' simulataneous copies.')
+               target + ' with ' + str(numprocs) + ' simulataneous copies.')
         src_objs = self.get_obj_list(source)
         # Setup a process pool
         procpool = mp.Pool(processes=numprocs)
