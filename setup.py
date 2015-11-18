@@ -12,9 +12,9 @@ if '--sourcedir' in sys.argv:
     index = sys.argv.index('--sourcedir')
     sys.argv.pop(index)
     sourcedir = sys.argv.pop(index)
-    print "starting dir:", startdir
+    print ("starting dir:", startdir)
     os.chdir(sourcedir)
-    print "present dir:", os.getcwd()
+    print ("present dir:", os.getcwd())
 
 
 def get_version():
