@@ -1,10 +1,11 @@
 #!/usr/bin/env python
-import rados
-
 '''Utilities for RADOS in python.
 
 Common utilities for RADOS clusters written in python.
 '''
+
+import multiprocessing as mp
+import rados
 
 
 class Cluster(object):
@@ -74,17 +75,31 @@ class Cluster(object):
         iocontext.write_full(objectname, contents)
         iocontext.close()
 
-    def copy_pool(self, source, target):
+    def copy_object(self, obj, source, target):
+        '''Copies a given object <obj> from source pool to target pool
+
+        Copies and object from source pool to target pool can be a
+        multiprocessing target.
+        '''
+        objname = obj.key
+        print ('Copying: ' + str(objname))
+        objcontents = self.read_object(source, objname)
+        self.write_object(target, objname, objcontents)
+
+    def copy_pool(self, source, target, procs=1):
         '''Copies all objects from source pool to target pool
 
         Copies all objects in source pool to target pool.
         '''
+        numprocs = procs
         print ('Beginning copy from pool ' + source + ' to pool ' +
-               target + '.')
+               target + ' with ' + numprocs + ' simulataneous copies.')
         src_objs = self.get_obj_list(source)
-        for obj in src_objs:
-            objname = obj.key
-            print ('Copying: ' + str(objname))
-            objcontents = self.read_object(source, objname)
-            self.write_object(target, objname, objcontents)
+        # Setup a process pool
+        procpool = mp.Pool(processes=numprocs)
+        # Run actions
+        actions = [procpool.apply_async(self.copy_object,
+                                        args=(obj, source, target)) \
+                   for obj in src_objs]
+        output = [p.get() for p in actions]
         print ('Pool copy complete.')
