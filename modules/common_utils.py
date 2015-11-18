@@ -4,7 +4,6 @@
 Common utilities for RADOS clusters written in python.
 '''
 
-import multiprocessing as mp
 import rados
 
 
@@ -86,20 +85,14 @@ class Cluster(object):
         objcontents = self.read_object(source, objname)
         self.write_object(target, objname, objcontents)
 
-    def copy_pool(self, source, target, procs=1):
+    def copy_pool(self, source, target):
         '''Copies all objects from source pool to target pool
 
         Copies all objects in source pool to target pool.
         '''
-        numprocs = procs
         print ('Beginning copy from pool ' + source + ' to pool ' +
-               target + ' with ' + str(numprocs) + ' simulataneous copies.')
+               target + ' with 1 simulataneous copies.')
         src_objs = self.get_obj_list(source)
-        # Setup a process pool
-        procpool = mp.Pool(processes=numprocs)
-        # Run actions
-        actions = [procpool.apply_async(self.copy_object,
-                                        args=(obj, source, target)) \
-                   for obj in src_objs]
-        output = [p.get() for p in actions]
+        for obj in src_objs:
+            self.copy_object(obj, source, target)
         print ('Pool copy complete.')
