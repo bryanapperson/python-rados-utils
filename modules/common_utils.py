@@ -74,16 +74,15 @@ class Cluster(object):
         iocontext.write_full(objectname, contents)
         iocontext.close()
 
-    def copy_object(self, obj, source, target):
+    def copy_object(self, objkey, source, target):
         '''Copies a given object <obj> from source pool to target pool
 
         Copies and object from source pool to target pool can be a
         multiprocessing target.
         '''
-        objname = obj.key
-        print ('Copying: ' + str(objname))
-        objcontents = self.read_object(source, objname)
-        self.write_object(target, objname, objcontents)
+        print ('Copying: ' + str(objkey))
+        objcontents = self.read_object(source, objkey)
+        self.write_object(target, objkey, objcontents)
 
     def copy_pool(self, source, target):
         '''Copies all objects from source pool to target pool
@@ -94,5 +93,5 @@ class Cluster(object):
                target + ' with 1 simulataneous copies.')
         src_objs = self.get_obj_list(source)
         for obj in src_objs:
-            self.copy_object(obj, source, target)
+            self.copy_object(str(obj.key), source, target)
         print ('Pool copy complete.')
